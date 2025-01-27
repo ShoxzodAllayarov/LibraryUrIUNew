@@ -1,0 +1,18 @@
+{
+  "name": "webcito/bs-select",
+  "version": "2.1.4",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "thomas",
+      "email": "t.kirsch@webcito.de"
+    }
+  ],
+  "require": {
+    "components/jquery": "^3",
+    "twbs/bootstrap": "^4 || ^5",
+    "twbs/bootstrap-icons": "^1"
+  }
+}

@@ -1,0 +1,75 @@
+{% load static %}
+<header class="header_area">
+    <nav class="navbar navbar-expand-lg menu_one" id="header">
+        <div class="container">
+            <a class="navbar-brand" href=".">
+                <img src="{% static 'img/header_logo.png' %}" alt="logo">
+                Innovatsion axborot markazi
+            </a>
+            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="menu_toggle">
+                    <span class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                    <span class="hamburger-cross">
+                        <span></span>
+                        <span></span>
+                    </span>
+                </span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+                <ul class="navbar-nav menu w_menu ms-auto me-auto ">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Elektron kitoblar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Kitoblar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Kitobxonlar
+                        </a>
+                    </li>
+                </ul>
+                <!-- <div class="alter_nav">
+                    <ul class="navbar-nav search_cart menu">
+                        <li class="nav-item search">
+                            <a class="nav-link search-btn" href="javascript:void(0);">
+                                <i class="ti-search"></i>
+                            </a>
+                            <form action="#" method="get" class="menu-search-form">
+                                <div class="input-group">
+                                    <input type="search" class="form-control" placeholder="Search here..">
+                                    <button type="submit">
+                                        <i class="ti-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+                </div> -->
+                {% if user.is_authenticated %}
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bj_theme_btn strock_btn hidden-sm hidden-xs">
+                            <i class="fa-regular fa-user"></i> {{ user.full_name|default:user.username }}(Chiqish)
+                        </button>
+                    </form>
+                    
+                {% else %}
+                    <a class="bj_theme_btn strock_btn hidden-sm hidden-xs" href="/login">
+                        <i class="fa-regular fa-user"></i> Kirish
+                    </a>
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+</header>

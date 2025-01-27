@@ -1,0 +1,9 @@
+/*======= bj mission area ========*/
+.bj_video_inner {
+  display: inline-block;
+  position: relative;
+}
+
+.play-btn {
+  position: absolute;
+}/*# sourceMappingURL=about.css.map */

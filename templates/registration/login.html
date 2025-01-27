@@ -1,0 +1,41 @@
+{% extends "../layouts/base.html" %}
+{% load static %}
+
+{% block body %}
+<body data-scroll-animation="true">
+
+<div class="body_wrapper">
+    <div class="login-area">
+        <div class="bg-shapes">
+            <img class="wow fadeIn" src="{% static 'assets/img/login/heart-shape-01.png' %}" alt="Image">
+            <img class="wow fadeInLeft" src="{% static 'assets/img/login/heart-shape-02.png' %}" alt="Image">
+            <img class="wow fadeInLeft" src="{% static 'assets/img/login/heart-shape-03.png' %}" alt="Image">
+            <img class="wow " src="{% static 'assets/img/login/heart-shape-04.png' %}" alt="Image">
+        </div>
+        <div class="login-wrapper">
+            <div class="login-left">
+                <h2 class="title">Akkountga kirish</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="input-field">
+                        <input type="text" class="form-control" placeholder="Login" name="username" required>
+                    </div>
+                    <div class="input-field pass-field-with-icon">
+                        <input type="password" class="form-control" id="toggle_passowrd_field" placeholder="Parol" name="password" required>
+                    </div>
+                    <div class="d-flex justify-content-between input-field">
+                        <a href="#" class="forget-password">Parol esdan chiqdimi?</a>
+                    </div>
+                    <button type="submit" class="bj_theme_btn w-100 border-0">Kirish</button>
+                </form>
+                <div class="new-user">
+                    Yangi foydalanuvchimisiz? <a href="{% url 'register' %}">Registratsiya</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+{% endblock %}
