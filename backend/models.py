@@ -46,7 +46,7 @@ class Author(models.Model):
         return self.name
 
 
-class CategoryForPhysicalBoosk(models.Model):
+class CategoryForPhysicalBooks(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название категории")
 
     class Meta:
@@ -68,7 +68,7 @@ class CategoryForElectronicBooks(models.Model):
 
 class PhysicalBook(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название книги")
-    category = models.ForeignKey(CategoryForPhysicalBoosk, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Категория")
+    category = models.ForeignKey(CategoryForPhysicalBooks, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Категория")
     author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Автор")
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
     publication_date = models.DateField(verbose_name="Дата публикации")

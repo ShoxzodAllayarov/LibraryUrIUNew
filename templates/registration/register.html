@@ -1,18 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h2>Регистрация</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Зарегистрироваться</button>
-    </form>
-    
+{% extends "../layouts/base.html" %}
+{% load static %}
 
+{% block body %}
+<body data-scroll-animation="true">
+
+<div class="body_wrapper">
+    <div class="login-area">
+        <div class="bg-shapes">
+            <img class="wow fadeIn" src="{% static 'assets/img/login/heart-shape-01.png' %}" alt="Image">
+            <img class="wow fadeInLeft" src="{% static 'assets/img/login/heart-shape-02.png' %}" alt="Image">
+            <img class="wow fadeInLeft" src="{% static 'assets/img/login/heart-shape-03.png' %}" alt="Image">
+            <img class="wow" src="{% static 'assets/img/login/heart-shape-04.png' %}" alt="Image">
+        </div>
+        <div class="login-wrapper">
+            <div class="login-left">
+                <h2 class="title">Ro'yxatdan o'tish</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="input-field">
+                        <input type="text" class="form-control" placeholder="Foydalanuvchi nomi" name="username" required>
+                    </div>
+                    <div class="input-field">
+                        <input type="email" class="form-control" placeholder="Email" name="email" required>
+                    </div>
+                    <div class="input-field pass-field-with-icon">
+                        <input type="password" class="form-control" id="toggle_password_field" placeholder="Parol" name="password1" required>
+                    </div>
+                    <div class="input-field pass-field-with-icon">
+                        <input type="password" class="form-control" placeholder="Parolni tasdiqlang" name="password2" required>
+                    </div>
+                    <button type="submit" class="bj_theme_btn w-100 border-0">Ro'yxatdan o'tish</button>
+                </form>
+
+                <div class="new-user">
+                    Allaqachon akkauntingiz bormi? <a href="{% url 'login' %}">Kirish</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 </body>
-</html>
+{% endblock %}

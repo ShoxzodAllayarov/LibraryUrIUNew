@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import (
         CustomUser, PhysicalBook, ElectronicBook, Author, 
         CategoryForElectronicBooks, BorrowingRecord, Review, 
-        LibrarySettings, CategoryForPhysicalBoosk, DownloadLog
+        LibrarySettings, CategoryForPhysicalBooks, DownloadLog
     )
 
 @admin.register(DownloadLog)
@@ -82,7 +82,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-class CategoryForPhysicalBooskAdmin(admin.ModelAdmin):
+class CategoryForPhysicalBooksAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
@@ -109,7 +109,7 @@ admin.site.register(PhysicalBook, PhysicalBookAdmin)
 admin.site.register(ElectronicBook, ElectronicBookAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(CategoryForElectronicBooks, CategoryForElectronicBooksAdmin)
-admin.site.register(CategoryForPhysicalBoosk, CategoryForPhysicalBooskAdmin)
+admin.site.register(CategoryForPhysicalBooks, CategoryForPhysicalBooksAdmin)
 admin.site.register(BorrowingRecord, BorrowingRecordAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(LibrarySettings, LibrarySettingsAdmin)

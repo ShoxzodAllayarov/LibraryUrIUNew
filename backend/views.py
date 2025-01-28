@@ -5,7 +5,8 @@ from django.contrib.auth import login
 from django.db.models import Count
 from .models import (
         CustomUser, ElectronicBook, PhysicalBook,
-        BorrowingRecord, CustomUser
+        BorrowingRecord, CustomUser, CategoryForElectronicBooks,
+        CategoryForPhysicalBooks
 )
 
 
@@ -50,8 +51,21 @@ def index(request):
 
     })
 
+def ebooks(request):
+    categories = CategoryForElectronicBooks.objects.prefetch_related('electronicbook_set').all()
+            
+    return render(request, 'ebooks.html', {
+        'categories': categories
 
+    })
 
+def books(request):
+    categories = CategoryForPhysicalBooks.objects.prefetch_related('physicalbook_set').all()
+            
+    return render(request, 'books.html', {
+        'categories': categories
+
+    })
 
 
 def register(request):

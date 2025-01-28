@@ -27,7 +27,3 @@ staticfiles/
 **/migrations/
 !**/migrations/*.py
 
-# Database
-*.sqlite3
-!local_db.sqlite3  # Укажите вашу базу данных
-

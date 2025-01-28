@@ -1,0 +1,144 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block body %}
+
+<body data-scroll-animation="true">
+    <div id="preloader">
+        <div id="ctn-preloader" class="ctn-preloader">
+            <div class="round_spinner">
+                <div class="spinner"></div>
+                <div class="text">
+                    <img src="{% static 'img/header_logo.png' %}" alt="Image">
+                    <h4><span>UrIU</span></h4>
+                </div>
+            </div>
+            <p></p>
+        </div>
+    </div>
+
+    <div class="body_wrapper">
+        <div class="toast-container position-fixed p-3">
+            <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Cart Update</strong>
+                    <small>just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Item added to the cart!
+                </div>
+            </div>
+        </div>
+
+        {% include 'layouts/header.html' %}
+
+
+        <!-- breadcrumb area  -->
+        <section class="bj_breadcrumb_area text-center banner_animation_03" data-bg-color="#f5f5f5">
+            <div class="bg_one" data-bg-image="{% static 'assets/img/breadcrumb/breadcrumb_banner_bg.png' %}"></div>
+            <div class="bd_shape one wow fadeInDown layer" data-wow-delay="0.3s" data-depth="0.5"><img
+                    data-parallax='{"y": -50}' src="{% static 'assets/img/breadcrumb/book_left1.png' %}" alt="">
+            </div>
+            <div class="bd_shape two layer" data-depth="0.6" data-wow-delay="0.4s"><img data-parallax='{"y": 30}'
+                    src="{% static 'assets/img/breadcrumb/book-left2.png' %}" alt="">
+            </div>
+            <div class="bd_shape three wow fadeInDown layer" data-wow-delay="0.3s" data-depth="0.5"><img
+                    data-parallax='{"y": -50}' src="{% static 'assets/img/breadcrumb/plane-1.png' %}" alt="">
+            </div>
+            <div class="bd_shape four layer" data-depth="0.6" data-wow-delay="0.4s"><img data-parallax='{"y": 30}'
+                    src="{% static 'assets/img/breadcrumb/plan-3.png' %}" alt="">
+            </div>
+            <div class="bd_shape five layer" data-depth="0.6" data-wow-delay="0.4s"><img data-parallax='{"y": 80}'
+                    src="{% static 'assets/img/breadcrumb/plan-2.png' %}" alt="">
+            </div>
+            <div class="bd_shape six wow fadeInDown layer" data-wow-delay="0.3s" data-depth="0.5"><img
+                    data-parallax='{"y": -60}' src="{% static 'assets/img/breadcrumb/book-right.png' %}" alt="">
+            </div>
+            <div class="bd_shape seven layer" data-depth="0.6" data-wow-delay="0.4s"><img data-parallax='{"x": 50}'
+                    src="{% static 'assets/img/breadcrumb/book-right2.png' %}" alt="">
+            </div>
+            <div class="container">
+                <h2 class="title wow fadeInUp" data-wow-delay="0.2s">Kitoblar</h2>
+
+            </div>
+        </section>
+        <!-- breadcrumb area  -->
+
+
+        <!-- end Blog Top area  -->
+        <section class="doc_blog_grid_area">
+            <div class="blog_grid_inner">
+                <div class="container">
+                    <ul class="nav blog_tab nav-pills" role="tablist">
+                        {% for category in categories %}
+                        <li class="nav-item">
+                            <button class="nav-link {% if forloop.first %}active{% endif %}" id="tab-{{ category.id }}" data-bs-toggle="pill"
+                                data-bs-target="#pills-{{ category.id }}" type="button" role="tab" aria-controls="pills-{{ category.id }}"
+                                aria-selected="true">
+                                {{ category.name }}
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="container">
+                <div class="tab-content" id="pills-tabContent">
+                    {% for category in categories %}
+                    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pills-{{ category.id }}" role="tabpanel"
+                        aria-labelledby="tab-{{ category.id }}">
+                        <div class="row blog_grid_tab gy-xl-0 gy-3">
+                            {% for book in category.electronicbook_set.all %}
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="blog-widget bs-sm box-blog mb-35 box-blog">
+                                    <img src="{{ book.thumbnail.url }}" class="featured-img" alt="{{ book.title }}">
+                                    <div class="blog-content">
+                                        <p class="blog-text dot-sep"><i class="icon_tag_alt"></i> {{ book.category.name }}
+                                            <span class="sep">{{ book.language }}</span>
+                                        </p>
+                                        <a href="#" class="title">
+                                            <h5>{{ book.title }}</h5>
+                                        </a>
+                                        {% if book.author %}
+                                        <p>Muallif: <a href="#">{{ book.author.name }}</a></p>
+                                        {% endif %}
+                                        <a href="{{ book.file.url }}" class="bj_theme_btn">Yuklab olish</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p>Kategoriyada kitoblar mavjud emas.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+        </section>
+
+    </div>
+
+    {% include 'layouts/footer.html' %}
+
+    <!-- Optional JavaScript; choose one of the two! -->
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+
+    <script src="{% static 'assets/js/preloader.js' %}"></script>
+    <script src="{% static 'assets/vendors/bootstrap/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/parallax/parallax.js' %}"></script>
+    <script src="{% static 'assets/vendors/slick/slick.min.js' %}"></script>
+    <script src="{% static 'assets/js/comming-soon.js' %}"></script>
+    <script src="{% static 'assets/vendors/isotope/imagesloaded.pkgd.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/isotope/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/parallax/jquery.parallax-scroll.js' %}"></script>
+    <script src="{% static 'assets/vendors/fancybox/jquery.fancybox.min.js' %}"></script>
+    <script src="{% static 'assets/vendors/wow/wow.min.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+
+</body>
+{% endblock %}
