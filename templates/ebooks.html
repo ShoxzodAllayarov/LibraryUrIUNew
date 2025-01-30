@@ -90,7 +90,7 @@
                         aria-labelledby="tab-{{ category.id }}">
                         <div class="row blog_grid_tab gy-xl-0 gy-3">
                             {% for book in category.electronicbook_set.all %}
-                            <div class="col-lg-4 col-sm-6">
+                            <div class="col-lg-3 col-sm-6">
                                 <div class="blog-widget bs-sm box-blog mb-35 box-blog">
                                     <img src="{{ book.thumbnail.url }}" class="featured-img" alt="{{ book.title }}">
                                     <div class="blog-content">

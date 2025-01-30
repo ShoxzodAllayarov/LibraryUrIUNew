@@ -416,6 +416,95 @@
         </div>
     </section>
 
+<section class="best_selling_pr_area sec_padding" data-bg-color="#f5f5f5">
+        <div class="container">
+            <div class="section_title section_title_two text-center wow fadeInUp" data-wow-delay="0.2s">
+                <h2 class="title title_two">Faol kitobxonlar</h2>
+                <p></p>
+            </div>
+
+            <ul class="nav nav-pills best_pr_tab d-flex justify-content-center wow fadeInUp" data-wow-delay="0.4s" id="top-readers-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="week-tab" data-bs-toggle="pill" data-bs-target="#week" type="button" role="tab" aria-controls="week" aria-selected="true">
+                        Hafta
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="month-tab" data-bs-toggle="pill" data-bs-target="#month" type="button" role="tab" aria-controls="month" aria-selected="false">
+                        Oy
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="alltime-tab" data-bs-toggle="pill" data-bs-target="#alltime" type="button" role="tab" aria-controls="alltime" aria-selected="false">
+                        Barcha vaxt
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-4" id="top-readers-content">
+                <!-- ТОП-3 за текущую неделю -->
+                <div class="tab-pane fade show active" id="week" role="tabpanel" aria-labelledby="week-tab">
+                    <div class="row">
+                        {% for user in top_week %}
+                        <div class="col-md-4">
+                            <div class="card text-center shadow-sm p-3 mb-4">
+                                <img src="{{ user.profile_picture.url }}" alt="User" class="rounded-circle mx-auto d-block" width="150" height="150" 
+                                    onerror="this.src='{% static 'assets/img/default_user.png' %}';">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ user.full_name }}</h5>
+                                    <p class="card-text">{{ user.total_books }} books borrowed</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center">No users borrowed books this week.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ТОП-3 за текущий месяц -->
+                <div class="tab-pane fade" id="month" role="tabpanel" aria-labelledby="month-tab">
+                    <div class="row">
+                        {% for user in top_month %}
+                        <div class="col-md-4">
+                            <div class="card text-center shadow-sm p-3 mb-4">
+                                <img src="{{ user.profile_picture.url }}" alt="User" class="rounded-circle mx-auto d-block" width="150" height="150" 
+                                    onerror="this.src='{% static 'assets/img/default_user.png' %}';">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ user.full_name }}</h5>
+                                    <p class="card-text">{{ user.total_books }} books borrowed</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center">No users borrowed books this month.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ТОП-3 за всё время -->
+                <div class="tab-pane fade" id="alltime" role="tabpanel" aria-labelledby="alltime-tab">
+                    <div class="row">
+                        {% for user in top_all_time %}
+                        <div class="col-md-4">
+                            <div class="card text-center shadow-sm p-3 mb-4">
+                                <img src="{{ user.profile_picture.url }}" alt="User" class="rounded-circle mx-auto d-block" width="150" height="150" 
+                                    onerror="this.src='{% static 'assets/img/default_user.png' %}';">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ user.full_name }}</h5>
+                                    <p class="card-text">{{ user.total_books }} books borrowed</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center">No users borrowed books yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {% include 'layouts/footer.html' %}
     </div>
     <!-- Back to top button -->

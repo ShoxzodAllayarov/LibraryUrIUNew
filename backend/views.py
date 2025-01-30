@@ -30,6 +30,7 @@ def get_top_borrower_current_week():
     return None
 
 
+
 def index(request):
     top_books = ElectronicBook.objects.annotate(
         download_count=Count('downloads')
@@ -43,11 +44,34 @@ def index(request):
 
     if top_borrower and not top_borrower.profile_picture:
         top_borrower.profile_picture = None  # Если нет файла, задаем None
-            
+    
+    top_week = get_top_borrowers("week")
+    top_month = get_top_borrowers("month")
+
+    # Получаем **ТОП-3 пользователей за всё время**
+    top_all_time = (
+        BorrowingRecord.objects.values("user")
+        .annotate(total_books=Count("book"))
+        .order_by("-total_books")[:3]
+    )
+
+    top_all_time_users = []
+    for borrower in top_all_time:
+        try:
+            user = CustomUser.objects.get(id=borrower["user"])
+            user.total_books = borrower["total_books"]
+            top_all_time_users.append(user)
+        except CustomUser.DoesNotExist:
+            continue
+
+
     return render(request, 'index.html', {
         'most_borrowed_books': most_borrowed,
         'top_borrower': top_borrower,
         'top_books': top_books,
+        "top_week": top_week,
+        "top_month": top_month,
+        "top_all_time": top_all_time_users,
 
     })
 
@@ -82,3 +106,41 @@ def register(request):
         form = CustomUserCreationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+
+def get_top_borrowers(timeframe):
+    """
+    Получает **ТОП-3 пользователей**, которые взяли наибольшее количество книг в аренду
+    за указанный промежуток времени (timeframe).
+    """
+    filters = {}
+    today = now().date()
+
+    if timeframe == "week":
+        start_date = today - timedelta(days=today.weekday())  # Начало недели (понедельник)
+        filters["borrow_date__gte"] = start_date
+
+    elif timeframe == "month":
+        start_date = today.replace(day=1)  # Начало текущего месяца
+        filters["borrow_date__gte"] = start_date
+
+    # Получаем **ТОП-3 пользователей по количеству арендованных книг**
+    top_borrowers = (
+        BorrowingRecord.objects.filter(**filters)
+        .values("user")
+        .annotate(total_books=Count("book"))
+        .order_by("-total_books")[:3]
+    )
+
+    # Добавляем информацию о пользователе
+    users = []
+    for borrower in top_borrowers:
+        try:
+            user = CustomUser.objects.get(id=borrower["user"])
+            user.total_books = borrower["total_books"]
+            users.append(user)
+        except CustomUser.DoesNotExist:
+            continue
+
+    return users
+
