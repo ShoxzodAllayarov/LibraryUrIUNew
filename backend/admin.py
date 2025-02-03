@@ -91,7 +91,7 @@ class CategoryForElectronicBooksAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class BorrowingRecordAdmin(admin.ModelAdmin):
-    list_display = ('user', 'book', 'borrow_date', 'return_date', 'is_returned')
+    list_display = ('user', 'book', 'borrow_date', 'is_confirmed', 'is_returned')
     search_fields = ('user__username', 'book__title')
     list_filter = ('is_returned', 'borrow_date', 'return_date')
 

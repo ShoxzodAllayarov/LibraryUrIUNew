@@ -8,7 +8,7 @@ from .models import (
         BorrowingRecord, CustomUser, CategoryForElectronicBooks,
         CategoryForPhysicalBooks
 )
-
+from .forms import ProfileUpdateForm
 
 def get_top_borrower_current_week():
     # Получаем текущую неделю
@@ -85,10 +85,9 @@ def ebooks(request):
 
 def books(request):
     categories = CategoryForPhysicalBooks.objects.prefetch_related('physicalbook_set').all()
-            
+
     return render(request, 'books.html', {
         'categories': categories
-
     })
 
 
@@ -143,4 +142,156 @@ def get_top_borrowers(timeframe):
             continue
 
     return users
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages  # ✅ Добавляем импорт
+from .forms import ProfileUpdateForm
+
+def profile_view(request):
+    user = request.user
+    borrow_records = BorrowingRecord.objects.filter(user=user)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ваш профиль успешно обновлен!")  # ✅ Сообщение об успешном обновлении
+            return redirect('profile')  # ✅ Перенаправляем на страницу профиля
+        else:
+            messages.error(request, "Ошибка обновления профиля. Проверьте введенные данные.")  # ✅ Сообщение об ошибке
+
+    else:
+        form = ProfileUpdateForm(instance=user)
+
+    return render(request, 'profile.html', {
+        'form': form,
+        'user': user,
+        'borrow_records': borrow_records
+    })
+import json
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import BorrowingRecord
+
+def confirm_borrow(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            record_id = data.get("record_id")
+            if not record_id:
+                return JsonResponse({"success": False, "error": "Kitobni tanlang!"}, status=400)
+
+            record = get_object_or_404(BorrowingRecord, id=record_id, user=request.user, is_confirmed=False)
+            record.is_confirmed = True
+            record.save()
+
+            return JsonResponse({"success": True, "message": "Kitob tasdiqlandi!"})
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Xato soʻrov!"}, status=400)
+
+    return JsonResponse({"success": False, "error": "Noto‘g‘ri so‘rov turi!"}, status=400)
+
+
+from django.http import JsonResponse
+from django.db.models import Q
+from .models import CustomUser, PhysicalBook
+
+from django.shortcuts import render, get_object_or_404
+from .models import CustomUser, PhysicalBook, BorrowingRecord
+import logging
+
+logger = logging.getLogger(__name__)
+
+def employee(request):
+    returned_books = BorrowingRecord.objects.filter(is_returned=True, is_confirmed=True)
+    borrowed_books = BorrowingRecord.objects.filter(is_returned=False, is_confirmed=True)
+    pending_books = BorrowingRecord.objects.filter(is_returned=False, is_confirmed=False)
+    return render(request, 'employee.html', {
+        "returned_books": returned_books,
+        "borrowed_books": borrowed_books,
+        "pending_books": pending_books
+    })
+
+def borrow_book(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        book_id = request.POST.get("book_id")
+
+        if not student_id or not book_id:
+            return JsonResponse({"success": False, "error": "Выберите студента и книгу!"}, status=400)
+
+        student = get_object_or_404(CustomUser, id=student_id)
+        book = get_object_or_404(PhysicalBook, id=book_id)
+
+        # Проверяем, есть ли уже невозвращенная книга
+        if BorrowingRecord.objects.filter(user=student, book=book, is_returned=False).exists():
+            return JsonResponse({"success": False, "error": "Эта книга уже выдана этому студенту!"}, status=400)
+
+        # Создаем запись о выдаче
+        BorrowingRecord.objects.create(user=student, book=book, is_confirmed=False)  # Подтверждаем автоматически
+
+        return JsonResponse({"success": True, "message": f"Книга '{book.title}' выдана студенту {student.full_name}"})
+
+    return JsonResponse({"success": False, "error": "Метод запроса должен быть POST!"}, status=405)
+
+# API для возврата книги
+from django.utils.timezone import now
+
+def return_book(request):
+    if request.method == "POST":
+        borrow_id = request.POST.get("borrow_id")
+
+        if not borrow_id:
+            return JsonResponse({"success": False, "error": "Выберите запись!"}, status=400)
+
+        borrow_record = get_object_or_404(BorrowingRecord, id=borrow_id, is_returned=False, is_confirmed=True)
+
+        borrow_record.is_returned = True
+        borrow_record.return_date = now()  # Устанавливаем текущую дату и время
+        borrow_record.save()
+
+        return JsonResponse({"success": True, "message": f"Книга '{borrow_record.book.title}' возвращена!"})
+
+    return JsonResponse({"success": False, "error": "Неверный запрос!"}, status=400)
+
+
+# API для поиска книг, которые не возвращены
+def search_borrowed_books(request):
+    query = request.GET.get('q', '').strip()
+    borrow_records = BorrowingRecord.objects.filter(
+        is_confirmed=True, is_returned=False
+    ).filter(
+        Q(user__full_name__icontains=query) |
+        Q(book__title__icontains=query) |
+        Q(book__isbn__icontains=query)
+    )[:10]
+
+    results = [{"id": br.id, "text": f"{br.user.full_name} - {br.book.title} (ISBN: {br.book.isbn})"} for br in borrow_records]
+
+    return JsonResponse({"results": results})
+
+def search_students(request):
+    query = request.GET.get('q', '')
+    students = CustomUser.objects.filter(
+        Q(username__icontains=query) |
+        Q(full_name__icontains=query) |
+        Q(id__icontains=query)
+    )[:10]  # Ограничиваем до 10 результатов
+
+    results = [{"id": student.id, "text": f"{student.full_name} ({student.username})"} for student in students]
+    return JsonResponse({"results": results})
+
+def search_books(request):
+    query = request.GET.get('q', '')
+    books = PhysicalBook.objects.filter(
+        Q(title__icontains=query) |
+        Q(author__name__icontains=query) |
+        Q(isbn__icontains=query) |
+        Q(barcode__icontains=query)
+    )[:10]
+
+    results = [{"id": book.id, "text": f"{book.title} - {book.author} (ISBN: {book.isbn})"} for book in books]
+    return JsonResponse({"results": results})
 

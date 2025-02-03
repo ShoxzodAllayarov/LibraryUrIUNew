@@ -1,0 +1,230 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block body %}
+{% include 'layouts/header.html' %}
+{% if user.is_authenticated and user.is_staff %}
+    <div class="container" style="margin-top: 150px;">
+        <h2>Kitob berish</h2>
+
+        <form id="borrow-form">
+            <div class="mb-3">
+                <label for="student" class="form-label">Student:</label>
+                <select id="student" name="student_id" class="form-control select2">
+                    <option value="">Student ma'lumotlarini kiriting.</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="book" class="form-label">Kitobni tanlang:</label>
+                <select id="book" name="book_id" class="form-control select2">
+                    <option value="">Kitob ma'lumotlarini kiriting.</option>
+                </select>
+            </div>
+
+            <button type="button" id="borrow-button" class="btn btn-success" disabled>Berish</button>
+        </form>
+
+        <div id="message-box" class="mt-3"></div>
+
+        <hr>
+
+        <h2>Kitobni qaytarib olish</h2>
+
+        <form id="return-form">
+            <div class="mb-3">
+                <label for="borrowed" class="form-label">Выберите запись о выдаче:</label>
+                <select id="borrowed" name="borrow_id" class="form-control select2">
+                    <option value="">Введите студента, название книги или ISBN...</option>
+                </select>
+            </div>
+
+            <button type="button" id="return-button" class="btn btn-danger" disabled>Вернуть книгу</button>
+        </form>
+
+        <div id="return-message-box" class="mt-3"></div>
+    </div>
+{% endif %}
+<!-- Подключаем jQuery и Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Инициализация Select2 с AJAX-запросом
+    function initSelect2(id, url, placeholder) {
+        $(id).select2({
+            ajax: {
+                url: url,
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term || '' };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            },
+            minimumInputLength: 0,
+            placeholder: placeholder,
+            allowClear: true
+        });
+    }
+
+    // Подключаем селекты
+    initSelect2('#student', "{% url 'search_students' %}", "Введите имя, логин или ID студента...");
+    initSelect2('#book', "{% url 'search_books' %}", "Введите название, автора, ISBN или штрихкод...");
+    initSelect2('#borrowed', "{% url 'search_borrowed_books' %}", "Введите студента, название книги или ISBN...");
+
+    // Проверка выбора значений для активации кнопок
+    function checkSelection() {
+        $('#borrow-button').prop('disabled', !($('#student').val() && $('#book').val()));
+        $('#return-button').prop('disabled', !$('#borrowed').val());
+    }
+
+    $('#student, #book, #borrowed').on('change', checkSelection);
+
+    // Отправка запроса на выдачу книги
+    $('#borrow-button').click(function() {
+        $.ajax({
+            url: "{% url 'borrow_book' %}",
+            type: "POST",
+            data: {
+                student_id: $('#student').val(),
+                book_id: $('#book').val(),
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function(response) {
+                $('#message-box').html('<div class="alert alert-success">' + response.message + '</div>');
+                $('#student, #book').val(null).trigger('change'); // Очищаем select
+                $('#borrow-button').prop('disabled', true);
+            },
+            error: function(xhr) {
+                let errorMsg = xhr.responseJSON ? xhr.responseJSON.error : "Ошибка при выдаче книги";
+                $('#message-box').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+            }
+        });
+    });
+
+    // Отправка запроса на возврат книги
+    $('#return-button').click(function() {
+        $.ajax({
+            url: "{% url 'return_book' %}",
+            type: "POST",
+            data: {
+                borrow_id: $('#borrowed').val(),
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function(response) {
+                $('#return-message-box').html('<div class="alert alert-success">' + response.message + '</div>');
+                $('#borrowed').val(null).trigger('change');
+                $('#return-button').prop('disabled', true);
+            },
+            error: function(xhr) {
+                let errorMsg = xhr.responseJSON ? xhr.responseJSON.error : "Ошибка при возврате книги";
+                $('#return-message-box').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+            }
+        });
+    });
+});
+</script>
+<!--  -->
+<div class="container" style="margin-top: 50px;">
+    <h2>Berilgan kitoblarni statuslari</h2>
+
+    <!-- Вкладки -->
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-returned-tab" data-bs-toggle="pill" data-bs-target="#pills-returned"
+                type="button" role="tab">✅ Qaytarilgan</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-borrowed-tab" data-bs-toggle="pill" data-bs-target="#pills-borrowed"
+                type="button" role="tab">📚 Berilgan</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending"
+                type="button" role="tab">⏳ Tasdiqlanmoqda</button>
+        </li>
+    </ul>
+
+    <!-- Контейнер для вкладок -->
+    <div class="tab-content" id="pills-tabContent">
+        <!-- ✅ Возвращенные книги -->
+        <div class="tab-pane fade show active" id="pills-returned" role="tabpanel">
+            <div class="row">
+                {% for record in returned_books %}
+                <div class="col-lg-4 col-sm-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ record.book.title }}</h5>
+                            <p class="card-text"><strong>Student:</strong> {{ record.user.full_name }}</p>
+                            <p class="card-text"><strong>Berilgan sana:</strong> {{ record.borrow_date|date:"d.m.Y" }}</p>
+                            <p class="card-text"><strong>Qaytarilgan sana:</strong> {{ record.return_date|date:"d.m.Y" }}</p>
+                            <p class="card-text"><strong>Telefon raqami:</strong> {{ record.user.phone }}</p>
+                            <p class="card-text"><strong>Hemis:</strong> <a href="{{ record.user.validate_url }}" style="text-decoration: underline; color: blue;">Ma'lumotlarini tekshirish</a></p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>qaytarilgan kitoblar topilmadi.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 📚 Выданные книги -->
+        <div class="tab-pane fade" id="pills-borrowed" role="tabpanel">
+            <div class="row">
+                {% for record in borrowed_books %}
+                <div class="col-lg-4 col-sm-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ record.book.title }}</h5>
+                            <p class="card-text"><strong>Student:</strong> {{ record.user.full_name }}</p>
+                            <p class="card-text"><strong>Berilgan sana:</strong> {{ record.borrow_date|date:"d.m.Y" }}</p>
+                            <p class="card-text text-danger">Kitob xali qaytarilmadi!</p>
+                            <p class="card-text"><strong>Telefon raqami:</strong> {{ record.user.phone }}</p>
+                            <p class="card-text"><strong>Hemis:</strong> <a href="{{ record.user.validate_url }}" style="text-decoration: underline; color: blue;">Ma'lumotlarini tekshirish</a></p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Berilgan kitoblar topilmadi</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ⏳ Ожидающие подтверждения -->
+        <div class="tab-pane fade" id="pills-pending" role="tabpanel">
+            <div class="row">
+                {% for record in pending_books %}
+                <div class="col-lg-4 col-sm-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ record.book.title }}</h5>
+                            <p class="card-text"><strong>Student:</strong> {{ record.user.full_name }}</p>
+                            <p class="card-text"><strong>Berilgan sana:</strong> {{ record.borrow_date|date:"d.m.Y" }}</p>
+                            <p class="card-text text-warning">⚠ Tasdiqlanishi kutilmoqda</p>
+                            <p class="card-text"><strong>Telefon raqami:</strong> {{ record.user.phone }}</p>
+                            <p class="card-text"><strong>Hemis:</strong> <a href="{{ record.user.validate_url }}" style="text-decoration: underline; color: blue;">Ma'lumotlarini tekshirish</a></p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Xech nima topilmadi.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем Bootstrap Tabs -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!--  -->
+
+{% include 'layouts/footer.html' %}
+{% endblock %}

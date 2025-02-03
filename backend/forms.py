@@ -17,3 +17,15 @@ class CustomUserCreationForm(UserCreationForm):
             'password1': 'Пароль',
             'password2': 'Подтверждение пароля',
         }
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_picture', 'phone']
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone and not phone[1:].isdigit():
+            raise forms.ValidationError("Телефон должен содержать только цифры.")
+        return phone

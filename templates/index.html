@@ -448,8 +448,7 @@
                         {% for user in top_week %}
                         <div class="col-md-4">
                             <div class="card text-center shadow-sm p-3 mb-4">
-                                <img src="{{ user.profile_picture.url }}" alt="User" class="rounded-circle mx-auto d-block" width="150" height="150" 
-                                    onerror="this.src='{% static 'assets/img/default_user.png' %}';">
+                                <img src="{{ user.profile_picture.url }}" alt="User" class="rounded-circle mx-auto d-block" width="150" height="150" >
                                 <div class="card-body">
                                     <h5 class="card-title">{{ user.full_name }}</h5>
                                     <p class="card-text">{{ user.total_books }} books borrowed</p>

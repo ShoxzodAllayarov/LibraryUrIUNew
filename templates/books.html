@@ -88,11 +88,11 @@
                     {% for category in categories %}
                     <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pills-{{ category.id }}" role="tabpanel"
                         aria-labelledby="tab-{{ category.id }}">
-                        <div class="row blog_grid_tab gy-xl-0 gy-3">
-                            {% for book in category.electronicbook_set.all %}
+                        <div class="row blog_grid_tab gy-xl-0 gy-4">
+                            {% for book in category.physicalbook_set.all %}
                             <div class="col-lg-4 col-sm-6">
                                 <div class="blog-widget bs-sm box-blog mb-35 box-blog">
-                                    <img src="{{ book.thumbnail.url }}" class="featured-img" alt="{{ book.title }}">
+                                    <img src="{{ book.cover_image.url }}" class="featured-img" alt="{{ book.title }}">
                                     <div class="blog-content">
                                         <p class="blog-text dot-sep"><i class="icon_tag_alt"></i> {{ book.category.name }}
                                             <span class="sep">{{ book.language }}</span>
@@ -103,7 +103,6 @@
                                         {% if book.author %}
                                         <p>Muallif: <a href="#">{{ book.author.name }}</a></p>
                                         {% endif %}
-                                        <a href="{{ book.file.url }}" class="bj_theme_btn">Yuklab olish</a>
                                     </div>
                                 </div>
                             </div>

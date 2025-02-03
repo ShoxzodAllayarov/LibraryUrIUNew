@@ -132,16 +132,18 @@ class ElectronicBook(models.Model):
 class BorrowingRecord(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Пользователь")
     book = models.ForeignKey(PhysicalBook, on_delete=models.CASCADE, verbose_name="Книга")
-    borrow_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата выдачи")
+    borrow_date = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="Дата выдачи")
     return_date = models.DateTimeField(null=True, blank=True, verbose_name="Дата возврата")
     is_returned = models.BooleanField(default=False, verbose_name="Возвращено")
+    is_confirmed = models.BooleanField(default=False, verbose_name="Отдано")
 
     class Meta:
         verbose_name = "Запись о выдаче"
         verbose_name_plural = "Записи о выдачах"
 
     def __str__(self):
-        return f"{self.user.full_name} - {self.book.title}"
+        return f"{self.user.full_name} - {self.book.title} ({'Подтверждено' if self.is_confirmed else 'Не подтверждено'})"
+
 
 
 class Review(models.Model):

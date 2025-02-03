@@ -119,6 +119,7 @@ LOCALE_PATHS = (
     # os.path.join(PROJECT_DIR, 'locale'),
 )
 
+
 TIME_ZONE = 'Asia/Tashkent'
 
 
